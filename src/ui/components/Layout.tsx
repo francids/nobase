@@ -2,11 +2,13 @@ import type { FC, PropsWithChildren } from 'hono/jsx';
 
 type LayoutProps = PropsWithChildren<{
   title?: string;
+  hideNav?: boolean;
 }>;
 
 export const Layout: FC<LayoutProps> = ({
   children,
   title = 'nobase admin',
+  hideNav = false,
 }) => {
   return (
     <html lang="en">
@@ -40,6 +42,8 @@ export const Layout: FC<LayoutProps> = ({
           .sidebar-header {
             padding: 0 20px 20px;
             border-bottom: 1px solid #34495e;
+            display: flex;
+            flex-direction: column;
           }
           
           .sidebar-nav {
@@ -61,7 +65,7 @@ export const Layout: FC<LayoutProps> = ({
           .content {
             flex: 1;
             padding: 20px;
-            margin-left: 250px;
+            margin-left: ${hideNav ? '0' : '250px'};
           }
           
           .dashboard-container {
@@ -157,21 +161,44 @@ export const Layout: FC<LayoutProps> = ({
             border-radius: 4px;
             font-size: 16px;
           }
+          
+          .logout-btn {
+            margin-top: 10px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-decoration: none;
+            display: inline-block;
+          }
+          
+          .logout-btn:hover {
+            background-color: #c0392b;
+          }
         `}</style>
       </head>
       <body>
-        <div class="sidebar">
-          <div class="sidebar-header">
-            <h2>NoBase Admin</h2>
+        {!hideNav && (
+          <div class="sidebar">
+            <div class="sidebar-header">
+              <h2>nobase admin</h2>
+              <a href="/dashboard/logout" class="logout-btn">
+                Cerrar sesión
+              </a>
+            </div>
+            <nav class="sidebar-nav">
+              <a href="/dashboard">Dashboard</a>
+              <a href="/dashboard/collections">Collections</a>
+              <a href="/dashboard/files">Files</a>
+              <a href="/dashboard/users">Users</a>
+              <a href="/">Back to API</a>
+            </nav>
           </div>
-          <nav class="sidebar-nav">
-            <a href="/dashboard">Dashboard</a>
-            <a href="/dashboard/collections">Collections</a>
-            <a href="/dashboard/files">Files</a>
-            <a href="/dashboard/users">Users</a>
-            <a href="/">Back to API</a>
-          </nav>
-        </div>
+        )}
         <main class="content">{children}</main>
         <script>{`
           // Simple client-side script for interactive elements
