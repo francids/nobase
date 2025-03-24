@@ -13,56 +13,53 @@ export const CollectionsView: FC<CollectionsViewProps> = async ({ c }) => {
   return (
     <Layout title="Database Collections">
       <div class="dashboard-container">
-        <h1>Database Collections</h1>
-        <div style={{ margin: '20px 0' }}>
-          <form
-            action="/dashboard/collections/create"
-            method="post"
-            style={{ display: 'flex', gap: '10px' }}
-          >
+        <header>
+          <h1>Database Collections</h1>
+        </header>
+
+        <form action="/dashboard/collections/create" method="post" class="grid">
+          <div>
             <input
               type="text"
               name="collectionName"
               placeholder="New collection name"
               required
             />
-            <button type="submit" class="button">
-              Create Collection
-            </button>
-          </form>
-        </div>
+          </div>
+          <div>
+            <button type="submit">Create Collection</button>
+          </div>
+        </form>
 
-        <table>
-          <thead>
-            <tr>
-              <th>Collection Name</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {collections.length > 0 ? (
-              collections.map((collection) => (
+        {collections.length > 0 ? (
+          <table>
+            <thead>
+              <tr>
+                <th>Collection Name</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {collections.map((collection) => (
                 <tr>
                   <td>{collection}</td>
                   <td>
                     <a
                       href={`/dashboard/collections/${collection}`}
-                      class="button"
+                      role="button"
                     >
                       View Documents
                     </a>
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colspan={2}>
-                  No collections found. Create your first collection.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <article>
+            <p>No collections found. Create your first collection.</p>
+          </article>
+        )}
       </div>
     </Layout>
   );

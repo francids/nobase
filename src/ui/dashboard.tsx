@@ -74,20 +74,43 @@ dashboard.get('/', (c) => {
   return c.html(
     <Layout>
       <div class="dashboard-container">
-        <h1>Admin Dashboard</h1>
+        <header>
+          <h1>Admin Dashboard</h1>
+        </header>
         <div class="dashboard-cards">
-          <a href="/dashboard/collections" class="card">
-            <h2>Collections</h2>
+          <article class="card">
+            <header>
+              <h2>Collections</h2>
+            </header>
             <p>Manage database collections</p>
-          </a>
-          <a href="/dashboard/files" class="card">
-            <h2>Files</h2>
+            <footer>
+              <a href="/dashboard/collections" role="button">
+                Manage
+              </a>
+            </footer>
+          </article>
+          <article class="card">
+            <header>
+              <h2>Files</h2>
+            </header>
             <p>Manage uploaded files</p>
-          </a>
-          <a href="/dashboard/users" class="card">
-            <h2>Users</h2>
+            <footer>
+              <a href="/dashboard/files" role="button">
+                Manage
+              </a>
+            </footer>
+          </article>
+          <article class="card">
+            <header>
+              <h2>Users</h2>
+            </header>
             <p>Manage user accounts</p>
-          </a>
+            <footer>
+              <a href="/dashboard/users" role="button">
+                Manage
+              </a>
+            </footer>
+          </article>
         </div>
       </div>
     </Layout>
