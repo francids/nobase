@@ -49,8 +49,8 @@ export const Nav: FC<NavProps> = ({ hideNav = false }) => {
                 </a>
               </li>
               <li>
-                <a href="/" class="contrast">
-                  API
+                <a href="/docs" class="contrast">
+                  API Docs
                 </a>
               </li>
               <li>

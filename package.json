@@ -4,7 +4,7 @@
     "name": "Francisco Mesa",
     "url": "https://francids.com"
   },
-  "module": "src/index.ts",
+  "module": "index.ts",
   "type": "module",
   "private": true,
   "devDependencies": {
@@ -19,8 +19,8 @@
     "uuid": "^11.1.0"
   },
   "scripts": {
-    "dev": "bun --watch run src/index.ts",
-    "start": "bun run src/index.ts",
-    "dist": "bun build src/index.ts --compile --minify --outfile dist/nobase"
+    "dev": "bun --watch run index.ts",
+    "start": "bun run index.ts",
+    "dist": "bun build index.ts --compile --minify --outfile dist/nobase"
   }
 }
