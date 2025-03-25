@@ -21,6 +21,6 @@
   "scripts": {
     "dev": "bun --watch run index.ts",
     "start": "bun run index.ts",
-    "dist": "bun build index.ts --compile --minify --outfile dist/nobase"
+    "dist": "bun build index.ts --compile --minify --outfile nobase"
   }
 }
