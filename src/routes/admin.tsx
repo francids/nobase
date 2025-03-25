@@ -1,26 +1,12 @@
 /** @jsxImportSource hono/jsx */
 
 import { Hono } from 'hono';
-import { getCollections } from '../db';
 
 const adminRoutes = new Hono();
 
-adminRoutes.get('/', async (c) => {
-  const collections = await getCollections();
-
-  return c.html(
-    <>
-      <h1>Simple Admin Panel</h1>
-      <p>Welcome to your backend admin panel.</p>
-      <p>Available collections: {collections.join(', ') || 'None'}</p>
-      <p>
-        <a href="/docs">View API documentation</a>
-      </p>
-      <p>
-        <a href="/dashboard">Access Admin Dashboard</a>
-      </p>
-    </>
-  );
+adminRoutes.get('/', (c) => {
+  c.res.headers.set('Content-Type', 'text/plain');
+  return c.text('nobase is running');
 });
 
 adminRoutes.get('/docs', (c) => {
