@@ -9,30 +9,41 @@ export const Nav: FC<NavProps> = ({ hideNav = false }) => {
     return <></>;
   } else {
     return (
-      <nav class="container">
+      <nav class="container" style="user-select: none;">
         <ul>
           <li>
-            <strong>nobase admin</strong>
+            <a href="/dashboard">
+              <img
+                src="/static/logo.svg"
+                alt="Nobase Logo"
+                style="max-width: 150px; width: 100%; height: auto;"
+              />
+            </a>
           </li>
         </ul>
         <ul>
           <li>
-            <a href="/dashboard">Dashboard</a>
+            <a href="/dashboard/collections" class="contrast">
+              Collections
+            </a>
           </li>
           <li>
-            <a href="/dashboard/collections">Collections</a>
+            <a href="/dashboard/files" class="contrast">
+              Files
+            </a>
           </li>
           <li>
-            <a href="/dashboard/files">Files</a>
+            <a href="/dashboard/users" class="contrast">
+              Users
+            </a>
           </li>
           <li>
-            <a href="/dashboard/users">Users</a>
+            <a href="/" class="contrast">
+              API
+            </a>
           </li>
           <li>
-            <a href="/">API</a>
-          </li>
-          <li>
-            <a href="/dashboard/logout" role="button" class="secondary outline">
+            <a href="/dashboard/logout" class="secondary">
               Cerrar sesión
             </a>
           </li>

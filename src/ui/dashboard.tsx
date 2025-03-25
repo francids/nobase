@@ -71,47 +71,65 @@ dashboard.get('/logout', (c) => {
 dashboard.use('/*', requireAuth);
 
 dashboard.get('/', (c) => {
+  type Product = {
+    title: string;
+    url: string;
+  };
+
+  const products: Product[] = [
+    {
+      title: 'Collections',
+      url: '/dashboard/collections',
+    },
+    {
+      title: 'Files',
+      url: '/dashboard/files',
+    },
+    {
+      title: 'Users',
+      url: '/dashboard/users',
+    },
+    {
+      title: 'API',
+      url: '/',
+    },
+  ];
+
+  const ProductFC = (product: Product) => {
+    return (
+      <a
+        href={product.url}
+        style={{
+          textDecoration: 'none',
+          color: 'inherit',
+          background: 'none',
+          boxShadow: 'none',
+        }}
+      >
+        <article
+          style={{
+            padding: '2rem',
+          }}
+        >
+          <strong>{product.title}</strong>
+        </article>
+      </a>
+    );
+  };
+
   return c.html(
-    <Layout>
-      <div class="dashboard-container">
-        <header>
-          <h1>Admin Dashboard</h1>
-        </header>
-        <div class="dashboard-cards">
-          <article class="card">
-            <header>
-              <h2>Collections</h2>
-            </header>
-            <p>Manage database collections</p>
-            <footer>
-              <a href="/dashboard/collections" role="button">
-                Manage
-              </a>
-            </footer>
-          </article>
-          <article class="card">
-            <header>
-              <h2>Files</h2>
-            </header>
-            <p>Manage uploaded files</p>
-            <footer>
-              <a href="/dashboard/files" role="button">
-                Manage
-              </a>
-            </footer>
-          </article>
-          <article class="card">
-            <header>
-              <h2>Users</h2>
-            </header>
-            <p>Manage user accounts</p>
-            <footer>
-              <a href="/dashboard/users" role="button">
-                Manage
-              </a>
-            </footer>
-          </article>
-        </div>
+    <Layout style={{ userSelect: 'none' }} title="Overview">
+      <h1>Overview</h1>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, 1fr)',
+          gap: '1rem',
+        }}
+      >
+        {products.map((product) => (
+          <ProductFC {...product} />
+        ))}
       </div>
     </Layout>
   );

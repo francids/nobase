@@ -5,7 +5,8 @@ import router from './routes';
 const app = new Hono();
 const port = process.env.PORT || 3000;
 
-app.use('/static/*', serveStatic({ root: './public' }));
+app.use('/static/*', serveStatic({ root: './' }));
+app.use('/favicon.ico', serveStatic({ path: './static/favicon.ico' }));
 
 app.route('/', router);
 
