@@ -20,6 +20,7 @@
   },
   "scripts": {
     "dev": "bun --watch run src/index.ts",
-    "start": "bun run src/index.ts"
+    "start": "bun run src/index.ts",
+    "dist": "bun build src/index.ts --compile --minify --outfile dist/nobase"
   }
 }
