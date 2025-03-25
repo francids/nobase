@@ -99,18 +99,7 @@ export const Layout: FC<LayoutProps> = ({
         <Style />
       </head>
       <body style={style}>
-        <header class="sticky-header">
-          <Nav hideNav={hideNav} />
-        </header>
-        <style>{`
-          .sticky-header {
-            position: sticky;
-            top: 0;
-            z-index: 300;
-            backdrop-filter: blur(8px);
-            border-bottom: 1px solid var(--pico-form-element-border-color);
-          }
-        `}</style>
+        <Nav hideNav={hideNav} />
         <main class="container">
           {children}
           <style>{`
