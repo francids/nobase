@@ -5,7 +5,12 @@ import { DocumentsView } from './views/documents';
 import { FilesView } from './views/files';
 import { UserListView } from './views/users';
 import { LoginView } from './views/login';
-import { validateAdminUser } from './auth/dashboardAuth';
+import { InitialSetupView } from './views/initialSetup';
+import {
+  validateAdminUser,
+  hasAdmins,
+  createInitialAdmin,
+} from './auth/dashboardAuth';
 import { setCookie, getCookie } from 'hono/cookie';
 
 const dashboard = new Hono();
@@ -13,6 +18,12 @@ const dashboard = new Hono();
 const SESSION_COOKIE_NAME = 'admin_session';
 
 async function requireAuth(c: any, next: any) {
+  const adminExists = await hasAdmins();
+
+  if (!adminExists) {
+    return c.redirect('/dashboard/setup');
+  }
+
   const sessionId = getCookie(c, SESSION_COOKIE_NAME);
 
   if (!sessionId) {
@@ -22,7 +33,79 @@ async function requireAuth(c: any, next: any) {
   return next();
 }
 
-dashboard.get('/login', (c) => {
+dashboard.get('/setup', async (c) => {
+  const adminExists = await hasAdmins();
+
+  if (adminExists) {
+    return c.redirect('/dashboard/login');
+  }
+
+  return c.render(<InitialSetupView c={c} />);
+});
+
+dashboard.post('/setup', async (c) => {
+  const adminExists = await hasAdmins();
+  if (adminExists) {
+    return c.redirect('/dashboard/login');
+  }
+
+  const { username, password, confirmPassword } = await c.req.parseBody();
+
+  if (password !== confirmPassword) {
+    return c.render(
+      <InitialSetupView c={c} error="Las contraseñas no coinciden" />
+    );
+  }
+
+  if (typeof password === 'string' && password.length < 6) {
+    return c.render(
+      <InitialSetupView
+        c={c}
+        error="La contraseña debe tener al menos 6 caracteres"
+      />
+    );
+  }
+
+  if (typeof username === 'string' && username.length < 3) {
+    return c.render(
+      <InitialSetupView
+        c={c}
+        error="El nombre de usuario debe tener al menos 3 caracteres"
+      />
+    );
+  }
+
+  const success = await createInitialAdmin(
+    username as string,
+    password as string
+  );
+
+  if (success) {
+    const sessionToken = `session_${Date.now()}_${Math.random()
+      .toString(36)
+      .substring(2, 15)}`;
+
+    setCookie(c, SESSION_COOKIE_NAME, sessionToken, {
+      httpOnly: true,
+      path: '/',
+      maxAge: 60 * 60 * 8,
+    });
+
+    return c.redirect('/dashboard');
+  } else {
+    return c.render(
+      <InitialSetupView c={c} error="No se pudo crear el administrador" />
+    );
+  }
+});
+
+dashboard.get('/login', async (c) => {
+  const adminExists = await hasAdmins();
+
+  if (!adminExists) {
+    return c.redirect('/dashboard/setup');
+  }
+
   const sessionId = getCookie(c, SESSION_COOKIE_NAME);
   if (sessionId) {
     return c.redirect('/dashboard');

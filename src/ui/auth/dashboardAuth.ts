@@ -5,7 +5,7 @@ import path from 'path';
 
 interface AdminUser {
   username: string;
-  password: string;
+  passwordHash: string;
 }
 
 interface AdminAuthSchema {
@@ -19,75 +19,53 @@ if (!fs.existsSync(DATA_DIR)) {
 
 const ADMIN_AUTH_PATH = path.join(DATA_DIR, 'admin_auth.json');
 const adapter = new JSONFile<AdminAuthSchema>(ADMIN_AUTH_PATH);
-const defaultAdmins: AdminAuthSchema = {
-  admins: [{ username: 'admin', password: 'admin123' }],
-};
-
-if (!fs.existsSync(ADMIN_AUTH_PATH)) {
-  fs.writeFileSync(ADMIN_AUTH_PATH, JSON.stringify(defaultAdmins, null, 2));
-}
+const defaultAdmins: AdminAuthSchema = { admins: [] };
 
 const adminAuthDb = new Low<AdminAuthSchema>(adapter, defaultAdmins);
 
-export const validateAdminUser = async (
+export const hasAdmins = async (): Promise<boolean> => {
+  await adminAuthDb.read();
+  return adminAuthDb.data.admins.length > 0;
+};
+
+export const createInitialAdmin = async (
   username: string,
   password: string
 ): Promise<boolean> => {
   await adminAuthDb.read();
 
-  const admin = adminAuthDb.data.admins.find(
-    (admin) => admin.username === username && admin.password === password
-  );
-
-  return !!admin;
-};
-
-export const changeAdminPassword = async (
-  username: string,
-  oldPassword: string,
-  newPassword: string
-): Promise<boolean> => {
-  await adminAuthDb.read();
-
-  const adminIndex = adminAuthDb.data.admins.findIndex(
-    (admin) => admin.username === username && admin.password === oldPassword
-  );
-
-  if (adminIndex === -1) {
+  if (adminAuthDb.data.admins.length > 0) {
     return false;
   }
 
-  adminAuthDb.data.admins[adminIndex].password = newPassword;
+  const passwordHash = await Bun.password.hash(password);
+  adminAuthDb.data.admins.push({ username, passwordHash });
   await adminAuthDb.write();
-
   return true;
 };
 
-export const addAdminUser = async (
+export const validateAdminUser = async (
   username: string,
-  password: string,
-  currentAdminUsername: string,
-  currentAdminPassword: string
+  plainPassword: string
 ): Promise<boolean> => {
-  const isAdmin = await validateAdminUser(
-    currentAdminUsername,
-    currentAdminPassword
-  );
-  if (!isAdmin) {
-    return false;
-  }
-
   await adminAuthDb.read();
 
-  const exists = adminAuthDb.data.admins.some(
+  const admin = adminAuthDb.data.admins.find(
     (admin) => admin.username === username
   );
-  if (exists) {
-    return false;
+
+  if (!admin) return false;
+
+  if (admin.passwordHash && admin.passwordHash.startsWith('$')) {
+    return await Bun.password.verify(plainPassword, admin.passwordHash);
+  } else {
+    const isMatch = admin.passwordHash === plainPassword;
+
+    if (isMatch) {
+      admin.passwordHash = await Bun.password.hash(plainPassword);
+      await adminAuthDb.write();
+    }
+
+    return isMatch;
   }
-
-  adminAuthDb.data.admins.push({ username, password });
-  await adminAuthDb.write();
-
-  return true;
 };

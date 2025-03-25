@@ -37,7 +37,7 @@ export const registerUser = async (
   }
 
   const id = uuidv4();
-  const passwordHash = password;
+  const passwordHash = await Bun.password.hash(password);
 
   authDb.data.users.push({ id, username, passwordHash });
   await authDb.write();
@@ -52,7 +52,7 @@ export const validateUser = async (
   await authDb.read();
 
   const user = authDb.data.users.find((u) => u.username === username);
-  if (user && user.passwordHash === password) {
+  if (user && (await Bun.password.verify(password, user.passwordHash))) {
     return user.id;
   }
   return undefined;
