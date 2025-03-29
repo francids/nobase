@@ -1,10 +1,17 @@
 import type { FC } from 'hono/jsx';
+import logo from '../../static/logo.svg' with { type: 'file' };
+import { file } from 'bun';
 
 type NavProps = {
   hideNav?: boolean;
 };
 
-export const Nav: FC<NavProps> = ({ hideNav = false }) => {
+export const Nav: FC<NavProps> = async ({ hideNav = false }) => {
+  const logoFile = file(logo);
+  const logoContent = await logoFile.text();
+  const logoBase64 = Buffer.from(logoContent).toString('base64');
+  const logoDataUri = `data:image/svg+xml;base64,${logoBase64}`;
+
   if (hideNav) {
     return <></>;
   } else {
@@ -25,7 +32,7 @@ export const Nav: FC<NavProps> = ({ hideNav = false }) => {
               <li>
                 <a href="/dashboard">
                   <img
-                    src="/static/logo.svg"
+                    src={logoDataUri}
                     alt="Nobase Logo"
                     style="max-width: 150px; width: 100%; height: auto;"
                   />

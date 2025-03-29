@@ -1,6 +1,8 @@
 import type { FC, PropsWithChildren } from 'hono/jsx';
 import { css, Style } from 'hono/css';
 import { Nav } from './Nav';
+import favicon from '../../static/favicon.svg' with { type: 'file' };
+import { file } from 'bun';
 
 type LayoutProps = PropsWithChildren<{
   title?: string;
@@ -8,12 +10,17 @@ type LayoutProps = PropsWithChildren<{
   style?: Record<string, string>;
 }>;
 
-export const Layout: FC<LayoutProps> = ({
+export const Layout: FC<LayoutProps> = async ({
   children,
   title = 'nobase admin',
   hideNav = false,
   style = {},
 }) => {
+  const faviconFile = file(favicon);
+  const faviconContent = await faviconFile.text();
+  const faviconBase64 = Buffer.from(faviconContent).toString('base64');
+  const faviconDataUri = `data:image/svg+xml;base64,${faviconBase64}`;
+
   const themeStyle = css`
     :root {
       --pico-font-size: 87.5%;
@@ -92,6 +99,7 @@ export const Layout: FC<LayoutProps> = ({
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{title}</title>
+        <link rel="icon" type="image/svg+xml" href={faviconDataUri} />
         <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
