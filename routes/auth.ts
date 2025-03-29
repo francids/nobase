@@ -1,28 +1,18 @@
 import { Hono } from 'hono';
 import { registerUser, validateUser } from '../auth';
+import { z } from 'zod';
+import { zValidator } from '@hono/zod-validator';
 
 const authRoutes = new Hono();
 
-authRoutes.post('/register', async (c) => {
+const authSchema = z.object({
+  username: z.string().min(1, 'Username is required'),
+  password: z.string().min(1, 'Password is required'),
+});
+
+authRoutes.post('/register', zValidator('form', authSchema), async (c) => {
   try {
-    if (!c.req.header('content-type')?.includes('application/json')) {
-      return c.json({ error: 'Content-Type must be application/json' }, 400);
-    }
-
-    const body = await c.req.json();
-
-    if (!body || typeof body !== 'object') {
-      return c.json({ error: 'Invalid request body' }, 400);
-    }
-
-    const { username, password } = body;
-
-    if (!username || !password) {
-      return c.json(
-        { error: 'username and password fields are required' },
-        400
-      );
-    }
+    const { username, password } = c.req.valid('form');
 
     const userId = await registerUser(username, password);
     if (userId) {
@@ -39,28 +29,12 @@ authRoutes.post('/register', async (c) => {
   }
 });
 
-authRoutes.post('/login', async (c) => {
+authRoutes.post('/login', zValidator('form', authSchema), async (c) => {
   try {
-    if (!c.req.header('content-type')?.includes('application/json')) {
-      return c.json({ error: 'Content-Type must be application/json' }, 400);
-    }
-
-    const body = await c.req.json();
-
-    if (!body || typeof body !== 'object') {
-      return c.json({ error: 'Invalid request body' }, 400);
-    }
-
-    const { username, password } = body;
-
-    if (!username || !password) {
-      return c.json(
-        { error: 'username and password fields are required' },
-        400
-      );
-    }
+    const { username, password } = c.req.valid('form');
 
     const userId = await validateUser(username, password);
+
     if (userId) {
       return c.json({ id: userId, message: 'Login successful' });
     } else {
@@ -73,3 +47,4 @@ authRoutes.post('/login', async (c) => {
 });
 
 export default authRoutes;
+export type AppType = typeof authRoutes;
