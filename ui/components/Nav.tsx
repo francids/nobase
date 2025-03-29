@@ -34,7 +34,13 @@ export const Nav: FC<NavProps> = async ({ hideNav = false }) => {
                   <img
                     src={logoDataUri}
                     alt="Nobase Logo"
-                    style="max-width: 150px; width: 100%; height: auto;"
+                    style={{
+                      maxWidth: '150px',
+                      width: '100%',
+                      height: 'auto',
+                      pointerEvents: 'none',
+                      userSelect: 'none',
+                    }}
                   />
                 </a>
               </li>
