@@ -15,7 +15,7 @@ export const LoginView: FC<LoginViewProps> = async ({ c, error }) => {
   const logoContent = await logoFile.text();
   const logoBase64 = Buffer.from(logoContent).toString('base64');
   const logoDataUri = `data:image/svg+xml;base64,${logoBase64}`;
-  
+
   return (
     <Layout title="Login" hideNav={true}>
       <section
@@ -27,15 +27,17 @@ export const LoginView: FC<LoginViewProps> = async ({ c, error }) => {
         }}
       >
         <article style={{ maxWidth: '500px', margin: '0 auto' }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginBottom: '20px',
-            padding: '20px',
-            userSelect: 'none',
-            pointerEvents: 'none',
-          }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginBottom: '20px',
+              padding: '20px',
+              userSelect: 'none',
+              pointerEvents: 'none',
+            }}
+          >
             <img
               src={logoDataUri}
               alt="Nobase Logo"
@@ -46,15 +48,26 @@ export const LoginView: FC<LoginViewProps> = async ({ c, error }) => {
           {error && <Alert type="danger">{error}</Alert>}
 
           <form action="/dashboard/login" method="post">
-            <label for="username">User</label>
-            <input type="text" id="username" name="username" required />
-
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required />
+            <input
+              type="text"
+              id="username"
+              name="username"
+              placeholder="Username"
+              required
+            />
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Password"
+              required
+            />
             <input
               type="submit"
               value="Login"
-              style={{ width: '100%', marginTop: '10px' }}
+              style={{
+                marginBottom: 0,
+              }}
             />
           </form>
         </article>
