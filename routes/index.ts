@@ -3,7 +3,7 @@ import adminRoutes from './admin';
 import authRoutes from './auth';
 import dataRoutes from './data';
 import fileRoutes from './files';
-import dashboard from '../ui/dashboard';
+import dashboard from '../dashboard';
 
 const router = new Hono();
 
