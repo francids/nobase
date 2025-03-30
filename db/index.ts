@@ -72,6 +72,13 @@ export const getCollectionSchema = async (
   return collectionSchemas[collectionName];
 };
 
+export const getAllSchemas = async (): Promise<
+  { [collection: string]: CollectionSchema } | undefined
+> => {
+  await db.read();
+  return collectionSchemas;
+};
+
 export const deleteCollectionSchema = async (collectionName: string) => {
   delete collectionSchemas[collectionName];
   saveSchemas(collectionSchemas);

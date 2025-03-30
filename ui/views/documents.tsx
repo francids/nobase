@@ -1,6 +1,6 @@
 import type { FC } from 'hono/jsx';
 import type { Context } from 'hono';
-import { getDocuments } from '../../db';
+import { getDocuments, getCollectionSchema } from '../../db';
 import { Layout } from '../components/Layout';
 
 type DocumentsViewProps = {
@@ -10,65 +10,105 @@ type DocumentsViewProps = {
 export const DocumentsView: FC<DocumentsViewProps> = async ({ c }) => {
   const collection = c.req.param('collection');
   const documents = await getDocuments(collection);
+  const schema = await getCollectionSchema(collection);
+
+  const renderFieldValue = (value: any) => {
+    if (value === null || value === undefined) return 'N/A';
+    if (typeof value === 'object')
+      return JSON.stringify(value).substring(0, 30) + '...';
+    return String(value);
+  };
+
+  const schemaFields = schema ? Object.keys(schema).slice(0, 5) : [];
 
   return (
     <Layout title={`Documents in ${collection}`}>
-      <div class="dashboard-container">
-        <h1>Documents in "{collection}"</h1>
-        <div style={{ margin: '20px 0' }}>
-          <a href={`/dashboard/collections/${collection}/new`} class="button">
-            Add New Document
-          </a>
-          <a
-            href="/dashboard/collections"
-            class="button"
-            style={{ marginLeft: '10px' }}
-          >
-            Back to Collections
-          </a>
+      <header>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '2rem',
+            userSelect: 'none',
+          }}
+        >
+          <h1>Documents in "{collection}"</h1>
+          <div>
+            <a role="button" class="primary">
+              Add New Document
+            </a>
+            <a
+              href="/dashboard/collections"
+              role="button"
+              class="secondary"
+              style={{ marginLeft: '10px' }}
+            >
+              Back to Collections
+            </a>
+          </div>
         </div>
+      </header>
 
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Content Preview</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {documents.length > 0 ? (
-              documents.map((doc) => (
-                <tr>
-                  <td>{doc.id}</td>
-                  <td>
-                    {JSON.stringify(doc).substring(0, 50)}
-                    {JSON.stringify(doc).length > 50 ? '...' : ''}
-                  </td>
-                  <td>
-                    <a
-                      href={`/dashboard/collections/${collection}/edit/${doc.id}`}
-                      class="button"
-                    >
-                      Edit
-                    </a>
-                    <button
-                      onclick={`if(confirm('Are you sure?')) fetch('/database/${collection}/${doc.id}', {method: 'DELETE'}).then(() => window.location.reload())`}
-                      class="button danger"
-                    >
-                      Delete
-                    </button>
+      {documents.length > 0 ? (
+        <article>
+          <table class="striped">
+            <thead
+              style={{
+                userSelect: 'none',
+              }}
+            >
+              <tr>
+                {/* <th>ID</th> */}
+                {schemaFields.map((field) => (
+                  <th key={field}>{field}</th>
+                ))}
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {documents.map((doc) => (
+                <tr key={doc.id}>
+                  {/* <td>{doc.id}</td> */}
+                  {schemaFields.map((field) => (
+                    <td key={`${doc.id}-${field}`}>
+                      {renderFieldValue(doc[field])}
+                    </td>
+                  ))}
+                  <td
+                    style={{
+                      display: 'flex',
+                      gap: '10px',
+                    }}
+                  >
+                    <button class="outline">Edit</button>
+                    <button class="outline secondary">Delete</button>
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colspan={3}>No documents found in this collection.</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </article>
+      ) : (
+        <article
+          style={{
+            padding: '3rem 1rem',
+            textAlign: 'center',
+            userSelect: 'none',
+          }}
+        >
+          <header>
+            <h2>No documents found in this collection.</h2>
+          </header>
+          <p>
+            Start by creating your first document in the "{collection}"
+            collection.
+          </p>
+          <footer>
+            <button>Create your first document</button>
+          </footer>
+        </article>
+      )}
     </Layout>
   );
 };
