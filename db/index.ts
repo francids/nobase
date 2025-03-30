@@ -13,6 +13,10 @@ interface DbSchema {
   [collection: string]: Document[];
 }
 
+interface CollectionSchema {
+  [key: string]: 'string' | 'number' | 'boolean' | 'object' | 'array';
+}
+
 const DATA_DIR = path.join(process.cwd(), 'data');
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -25,13 +29,52 @@ const db = new Low<DbSchema>(adapter, defaultData);
 
 await db.read();
 
-export const createCollection = async (collectionName: string) => {
-  await db.read();
+const SCHEMA_PATH = path.join(DATA_DIR, 'schemas.json');
 
-  if (!db.data[collectionName]) {
-    db.data[collectionName] = [];
-    await db.write();
+const loadSchemas = (): { [collection: string]: CollectionSchema } => {
+  if (fs.existsSync(SCHEMA_PATH)) {
+    const rawData = fs.readFileSync(SCHEMA_PATH, 'utf-8');
+    return JSON.parse(rawData);
   }
+  return {};
+};
+
+const saveSchemas = (schemas: { [collection: string]: CollectionSchema }) => {
+  fs.writeFileSync(SCHEMA_PATH, JSON.stringify(schemas, null, 2));
+};
+
+const collectionSchemas: { [collection: string]: CollectionSchema } =
+  loadSchemas();
+
+const validateDocument = (schema: CollectionSchema, data: any): boolean => {
+  for (const key in schema) {
+    const expectedType = schema[key];
+    const actualType = Array.isArray(data[key]) ? 'array' : typeof data[key];
+    if (actualType !== expectedType) {
+      return false;
+    }
+  }
+  return true;
+};
+
+export const setCollectionSchema = async (
+  collectionName: string,
+  schema: CollectionSchema
+) => {
+  collectionSchemas[collectionName] = schema;
+  saveSchemas(collectionSchemas);
+};
+
+export const getCollectionSchema = async (
+  collectionName: string
+): Promise<CollectionSchema | undefined> => {
+  await db.read();
+  return collectionSchemas[collectionName];
+};
+
+export const deleteCollectionSchema = async (collectionName: string) => {
+  delete collectionSchemas[collectionName];
+  saveSchemas(collectionSchemas);
 };
 
 export const insertDocument = async (
@@ -39,6 +82,13 @@ export const insertDocument = async (
   data: any
 ): Promise<string> => {
   await db.read();
+
+  const schema = collectionSchemas[collectionName];
+  if (schema && !validateDocument(schema, data)) {
+    throw new Error(
+      `Document does not match the schema for collection "${collectionName}"`
+    );
+  }
 
   const id = uuidv4();
   const document: Document = { id, ...data };
@@ -73,6 +123,13 @@ export const updateDocumentById = async (
   newData: any
 ): Promise<boolean> => {
   await db.read();
+
+  const schema = collectionSchemas[collectionName];
+  if (schema && !validateDocument(schema, newData)) {
+    throw new Error(
+      `Document does not match the schema for collection "${collectionName}"`
+    );
+  }
 
   const collection = db.data[collectionName];
   if (!collection) return false;
