@@ -1,17 +1,22 @@
 import { Hono } from 'hono';
 import { Layout } from './components/Layout';
+
 import { CollectionsView } from './views/collections';
 import { DocumentsView } from './views/documents';
+import { CreateDocumentView } from './views/documents/create';
 import { FilesView } from './views/files';
 import { UserListView } from './views/users';
 import { LoginView } from './views/login';
 import { InitialSetupView } from './views/initialSetup';
+
 import {
   validateAdminUser,
   hasAdmins,
   createInitialAdmin,
 } from './auth/dashboardAuth';
+import { insertDocument } from '../db';
 import { setCookie, getCookie } from 'hono/cookie';
+import { getCollectionSchema } from '../db';
 
 const dashboard = new Hono();
 
@@ -218,11 +223,46 @@ dashboard.get('/', (c) => {
   );
 });
 
+// Collections
 dashboard.get('/collections', (c) => c.render(<CollectionsView c={c} />));
 dashboard.get('/collections/:collection', (c) =>
   c.render(<DocumentsView c={c} />)
 );
+dashboard.get('/collections/:collection/create', (c) =>
+  c.render(<CreateDocumentView c={c} />)
+);
+dashboard.post('/collections/:collection/create', async (c) => {
+  const collection = c.req.param('collection');
+  const schema = await getCollectionSchema(collection);
+
+  if (!schema) {
+    return c.render(
+      <CreateDocumentView c={c} error="Collection schema not found" />
+    );
+  }
+
+  const formData = await c.req.parseBody();
+
+  try {
+    await insertDocument(collection, formData);
+
+    return c.redirect(`/dashboard/collections/${collection}`);
+  } catch (error) {
+    return c.render(
+      <CreateDocumentView
+        c={c}
+        error={
+          error instanceof Error ? error.message : 'Failed to create document'
+        }
+      />
+    );
+  }
+});
+
+// Files
 dashboard.get('/files', (c) => c.render(<FilesView c={c} />));
+
+// Users
 dashboard.get('/users', (c) => c.render(<UserListView c={c} />));
 
 export default dashboard;

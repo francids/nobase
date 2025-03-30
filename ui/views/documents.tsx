@@ -35,7 +35,10 @@ export const DocumentsView: FC<DocumentsViewProps> = async ({ c }) => {
         >
           <h1>Documents in "{collection}"</h1>
           <div>
-            <a role="button" class="primary">
+            <a
+              href={`/dashboard/collections/${collection}/create`}
+              role="button"
+            >
               Add New Document
             </a>
             <a
