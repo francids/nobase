@@ -3,7 +3,6 @@ import adminRoutes from './admin';
 import authRoutes from './auth';
 import dataRoutes from './data';
 import fileRoutes from './files';
-import dashboard from '../dashboard';
 
 const router = new Hono();
 
@@ -11,6 +10,5 @@ router.route('/', adminRoutes);
 router.route('/auth', authRoutes);
 router.route('/storage', fileRoutes);
 router.route('/database', dataRoutes);
-router.route('/dashboard', dashboard);
 
 export default router;

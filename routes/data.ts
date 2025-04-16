@@ -8,7 +8,7 @@ import {
   setCollectionSchema,
   getCollectionSchema,
   deleteCollectionSchema,
-} from '../db';
+} from '../services/collection';
 import { z } from 'zod';
 
 const dataRoutes = new Hono();
@@ -20,7 +20,7 @@ dataRoutes.get('/:collection/schema', async (c) => {
     return c.json(schema);
   } else {
     return c.json(
-      { error: `Schema for collection "${collection}" not found` },
+      { error: `Schema for collection '${collection}' not found` },
       404
     );
   }
@@ -65,7 +65,7 @@ dataRoutes.post('/:collection/schema', async (c) => {
   await setCollectionSchema(collection, schemaDefinition);
 
   return c.json({
-    message: `Schema for collection "${collection}" set successfully`,
+    message: `Schema for collection '${collection}' set successfully`,
   });
 });
 
@@ -73,7 +73,7 @@ dataRoutes.delete('/:collection/schema', async (c) => {
   const { collection } = c.req.param();
   await deleteCollectionSchema(collection);
   return c.json({
-    message: `Schema for collection "${collection}" deleted successfully`,
+    message: `Schema for collection '${collection}' deleted successfully`,
   });
 });
 
@@ -83,7 +83,7 @@ dataRoutes.post('/:collection', async (c) => {
 
   const schemaDefinition = await getCollectionSchema(collection);
   if (!schemaDefinition) {
-    return c.json({ error: `Collection "${collection}" does not exist` }, 404);
+    return c.json({ error: `Collection '${collection}' does not exist` }, 404);
   }
 
   try {
@@ -118,12 +118,18 @@ dataRoutes.post('/:collection', async (c) => {
     if (err instanceof z.ZodError) {
       return c.json({ error: err.errors }, 400);
     }
-    return c.json({ error: 'Invalid document' }, 400);
+    return c.json({ error: err }, 400);
   }
 });
 
 dataRoutes.get('/:collection', async (c) => {
   const { collection } = c.req.param();
+
+  const schemaDefinition = await getCollectionSchema(collection);
+  if (!schemaDefinition) {
+    return c.json({ error: `Collection '${collection}' does not exist` }, 404);
+  }
+
   const documents = await getDocuments(collection);
   return c.json(documents);
 });

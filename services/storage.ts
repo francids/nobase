@@ -1,9 +1,8 @@
-import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import fs from 'fs';
 import type { Context } from 'hono';
 
-const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
+const UPLOAD_DIR = path.join(process.cwd(), 'n_files');
 
 if (!fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -12,7 +11,7 @@ if (!fs.existsSync(UPLOAD_DIR)) {
 export const storeFile = async (file: File): Promise<string | undefined> => {
   if (!file) return undefined;
 
-  const filename = `${uuidv4()}-${file.name}`;
+  const filename = `${Bun.randomUUIDv7()}-${file.name}`;
   const filepath = path.join(UPLOAD_DIR, filename);
 
   try {

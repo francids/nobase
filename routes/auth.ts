@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { registerUser, validateUser } from '../auth';
+import { registerUser, validateUser } from '../services/auth';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 
@@ -10,9 +10,9 @@ const authSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
-authRoutes.post('/register', zValidator('form', authSchema), async (c) => {
+authRoutes.post('/register', zValidator('json', authSchema), async (c) => {
   try {
-    const { username, password } = c.req.valid('form');
+    const { username, password } = c.req.valid('json');
 
     const userId = await registerUser(username, password);
     if (userId) {
@@ -29,9 +29,9 @@ authRoutes.post('/register', zValidator('form', authSchema), async (c) => {
   }
 });
 
-authRoutes.post('/login', zValidator('form', authSchema), async (c) => {
+authRoutes.post('/login', zValidator('json', authSchema), async (c) => {
   try {
-    const { username, password } = c.req.valid('form');
+    const { username, password } = c.req.valid('json');
 
     const userId = await validateUser(username, password);
 

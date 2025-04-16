@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { storeFile, serveFile } from '../storage';
+import { storeFile, serveFile } from '../services/storage';
 
 const fileRoutes = new Hono();
 
