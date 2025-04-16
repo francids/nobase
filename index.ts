@@ -19,9 +19,8 @@ const server = Bun.serve({
 });
 
 const primary = '\x1b[38;2;24;104;219m'; // #1868DB
-const secondary = '\x1b[38;2;200;226;241m'; // #C8E2F1
+// const secondary = '\x1b[38;2;200;226;241m'; // #C8E2F1
 const reset = '\x1b[0m'; // Reset
 const mainUrl = `${protocol}://${server.hostname}:${server.port}`;
 
 console.log(`\x1b[1mnobase\x1b[0m on ${primary}${mainUrl}/${reset}`);
-console.log(`\u2514\u2500 API Docs: ${secondary}${mainUrl}/docs${reset}`);

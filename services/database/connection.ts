@@ -1,10 +1,10 @@
 import { PGlite } from '@electric-sql/pglite';
 import { drizzle } from 'drizzle-orm/pglite';
 
-const DB_FILE_PATH = 'n_data';
+const DATA_PATH = 'n_data';
 
 export const getDbConnection = async () => {
-  const client = new PGlite(DB_FILE_PATH);
+  const client = new PGlite(DATA_PATH);
   return drizzle(client);
 };
 

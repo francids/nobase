@@ -5,10 +5,12 @@ import {
   insertDocument,
   updateDocumentById,
   deleteDocumentById,
+} from '../services/collections-service';
+import {
   setCollectionSchema,
   getCollectionSchema,
   deleteCollectionSchema,
-} from '../services/collection';
+} from '../services/schema-service';
 import { z } from 'zod';
 
 const dataRoutes = new Hono();

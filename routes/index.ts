@@ -1,14 +1,12 @@
 import { Hono } from 'hono';
-import adminRoutes from './admin';
-import authRoutes from './auth';
-import dataRoutes from './data';
-import fileRoutes from './files';
+import auth from './auth';
+import collections from './collections';
+import storage from './storage';
 
-const router = new Hono();
+const router = new Hono().basePath('/api');
 
-router.route('/', adminRoutes);
-router.route('/auth', authRoutes);
-router.route('/storage', fileRoutes);
-router.route('/database', dataRoutes);
+router.route('/auth', auth);
+router.route('/collections', collections);
+router.route('/storage', storage);
 
 export default router;

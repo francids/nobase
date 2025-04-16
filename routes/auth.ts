@@ -1,16 +1,16 @@
 import { Hono } from 'hono';
-import { registerUser, validateUser } from '../services/auth';
+import { registerUser, validateUser } from '../services/auth-service';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
 
-const authRoutes = new Hono();
+const auth = new Hono();
 
 const authSchema = z.object({
   username: z.string().min(1, 'Username is required'),
   password: z.string().min(1, 'Password is required'),
 });
 
-authRoutes.post('/register', zValidator('json', authSchema), async (c) => {
+auth.post('/register', zValidator('json', authSchema), async (c) => {
   try {
     const { username, password } = c.req.valid('json');
 
@@ -29,7 +29,7 @@ authRoutes.post('/register', zValidator('json', authSchema), async (c) => {
   }
 });
 
-authRoutes.post('/login', zValidator('json', authSchema), async (c) => {
+auth.post('/login', zValidator('json', authSchema), async (c) => {
   try {
     const { username, password } = c.req.valid('json');
 
@@ -46,5 +46,5 @@ authRoutes.post('/login', zValidator('json', authSchema), async (c) => {
   }
 });
 
-export default authRoutes;
-export type AppType = typeof authRoutes;
+export default auth;
+export type AppType = typeof auth;
